@@ -20,7 +20,6 @@ export default function HomeScreen() {
 
     const startRecording = async () => {
         setRecording(true);
-        setErrorMessage('');
         try {
             await sendRecordSignal('start-recording');
             console.log('Recording started!');
@@ -28,14 +27,14 @@ export default function HomeScreen() {
             console.error('Error starting recording:', error);
             setErrorMessage(error.message || 'Unable to start recording.');
         } finally {
-            setRecording(false); // Reset trạng thái nếu có lỗi
+            // setRecording(false); // Reset trạng thái nếu có lỗi
         }
     };
 
     const stopRecording = async () => {
         setRecording(false);
         setLoading(true);
-        setErrorMessage('');
+        clear();
 
         try {
             await sendRecordSignal('stop-recording');
@@ -55,9 +54,9 @@ export default function HomeScreen() {
         }
     };
 
-    const startPlayAudio = async () => {
+    const startPlayAudio = async (action) => {
         try {
-            await playAudioFile('play-audio', filename);
+            await playAudioFile(action, filename);
             console.log('Playing-audio!');
         } catch (error) {
             console.error('Error playing-audio:', error);
@@ -75,14 +74,14 @@ export default function HomeScreen() {
                 {/* Text nhận diện từ giọng nói */}
                 <View className="space-y-2 mt-3">
                     <Text style={{ fontSize: wp(4.5) }} className="text-gray-700 font-semibold ml-1">
-                        English
+                        Vietnamese
                     </Text>
                     <View style={{ height: hp(20) }} className="bg-white rounded-2xl p-4">
                         <Text style={{ fontSize: wp(4.5) }} className="font-medium">
-                            {inputText || 'Recording to translate.'}
+                            {inputText || 'Ấn nút ghi âm để dịch.'}
                         </Text>
                         {inputText.length > 0 && (
-                            <TouchableOpacity className="absolute" style={{right: wp(3), bottom: wp(3) }}>
+                            <TouchableOpacity onPress={() => startPlayAudio('play-audiotv')}  className="absolute" style={{right: wp(3), bottom: wp(3) }}>
                                 <Icon name="record-voice-over" size={wp(5)}/>
                             </TouchableOpacity>
                         )}
@@ -93,18 +92,18 @@ export default function HomeScreen() {
                 <View className="space-y-2 flex-1 mt-3">
                     {/* <LanguageSelector /> */}
                     <Text style={{ fontSize: wp(4.5) }} className="text-gray-700 font-semibold ml-1">
-                        Vietnamese
+                        English
                     </Text>
                     <View style={{ height: hp(20) }} className="bg-white rounded-2xl p-4">
                         {loading ? (
                             <ActivityIndicator size="large" color="#0000ff" />
                         ) : (
                             <Text style={{ fontSize: wp(4.5) }} className="text-emerald-700 font-medium">
-                                {outputText || 'Translation will appear here.'}
+                                {outputText || 'Press the record button to translate.'}
                             </Text>
                         )}
                         {outputText.length > 0 && !loading && (
-                            <TouchableOpacity onPress={startPlayAudio} className="absolute" style={{right: wp(3), bottom: wp(3) }}>
+                            <TouchableOpacity onPress={() => startPlayAudio('play-audio')}  className="absolute" style={{right: wp(3), bottom: wp(3) }}>
                                 <Icon name="record-voice-over" size={wp(5)}/>
                             </TouchableOpacity>
                         )}
@@ -112,9 +111,9 @@ export default function HomeScreen() {
                 </View>
 
                 {/* Thông báo lỗi */}
-                {errorMessage ? (
+                {/* {errorMessage ? (
                     <Text style={{ color: 'red', textAlign: 'center', marginTop: 10 }}>{errorMessage}</Text>
-                ) : null}
+                ) : null} */}
 
                 {/* Nút ghi âm và dừng ghi âm */}
                 <View className="flex justify-center items-center my-3">
@@ -159,14 +158,14 @@ export default function HomeScreen() {
                             <Text className="text-white font-semibold">Clear</Text>
                         </TouchableOpacity>
                     )}
-                    {!loading && (
+                    {!loading && recording ? (
                         <TouchableOpacity
                             onPress={stopRecording}
                             className="bg-red-400 rounded-3xl p-2 absolute left-10"
                         >
                             <Text className="text-white font-semibold">Stop</Text>
                         </TouchableOpacity>
-                    )}
+                    ) : null}
                 </View>
 
             </SafeAreaView>
